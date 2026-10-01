@@ -13,3 +13,6 @@ logs/*
 *.log
 *.jsonl
 *.bin
+
+# Captura local de validação com telemetria e identificação de hardware
+/imagem.png

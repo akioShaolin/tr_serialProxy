@@ -44,3 +44,16 @@ tr-serial-proxy --list-ports
 
 Em todos os exemplos, `tr-serial-proxy` pode ser substituído por
 `python -m tr_serial_proxy`. Veja [todos os argumentos](usage.md).
+
+## Exemplo com com0com
+
+Par virtual validado: **COM13 ↔ COM14**. Configure o software proprietário para
+abrir COM13 e execute o proxy na outra ponta:
+
+```powershell
+python -m tr_serial_proxy --physical-port COM7 --virtual-port COM14 --baud 9600 --raw-log
+```
+
+COM7 é um exemplo da porta física do dispositivo, não uma porta comprovada pela
+captura do teste virtual. Substitua conforme o ambiente. COM13/COM14 também podem
+ser substituídas pelo par configurado. Veja os [dois testes em etapas](validation.md).

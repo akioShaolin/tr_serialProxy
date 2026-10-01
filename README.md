@@ -21,9 +21,9 @@ byte recebido → registrar → encaminhar exatamente o mesmo byte
 ```text
 Software proprietário
         ↕
-   COM virtual A (COM20)
+   COM virtual A (COM13)
         ↕
-   COM virtual B (COM21)
+   COM virtual B (COM14)
         ↕
   tr_serialProxy
         ↕
@@ -36,11 +36,47 @@ Software proprietário
 Duas threads encaminham bytes simultaneamente. Cada bloco é registrado antes
 da escrita no destino. Leia a [arquitetura detalhada](docs/architecture.md).
 
+## Validação com COM virtual
+
+O conceito foi validado em ambiente real com **COM13 ↔ COM14 via com0com**.
+O software proprietário abriu **COM13**, enquanto o tr_serialProxy abriu
+**COM14** e a COM física do dispositivo. O software continuou operacional,
+com encaminhamento bidirecional e registro de TX e RX, conforme o teste relatado.
+O software não precisa conhecer a COM física.
+
+```text
+Software proprietário
+        ↕
+      COM13 (lado do software)
+        ↕
+      com0com
+        ↕
+      COM14 (lado do proxy)
+        ↕
+  tr_serialProxy
+        ↕
+    COM física
+        ↕
+   dispositivo
+```
+
+Antes disso, o protótipo foi validado com dois conversores USB-RS485 como ligação
+intermediária e um terceiro conversor para o dispositivo. A COM virtual substituiu
+os dois conversores intermediários. Os números de COM são exemplos, não requisitos.
+Veja os [dois processos testados, em etapas](docs/validation.md).
+
+![Diagrama do protótipo físico e da arquitetura virtual](docs/images/serial-proxy-concept.png)
+
+*Diagrama histórico fornecido para ilustrar a evolução. A parte inferior ainda
+usa COM20/COM21 e o título “Implementação desejada”; essa arquitetura já foi
+validada com COM13/COM14. Veja as ressalvas da imagem na [validação](docs/validation.md).*
+
 ## Requisitos
 
 - Windows e Python 3.10 ou superior.
 - pySerial, única dependência de execução.
-- Dispositivo que apareça como COM e par de COMs virtuais criado externamente.
+- Dispositivo que apareça como COM e par de COMs virtuais criado externamente
+  (ou a ligação física intermediária descrita na validação).
 - pytest para desenvolvimento/testes; setuptools para empacotamento.
 
 ## Instalação
@@ -63,8 +99,8 @@ Sem ativá-lo, use `.\.venv\Scripts\python.exe` ou
 
 ## Configuração da COM virtual
 
-Um driver externo aprovado deve criar um par como `COM20 ↔ COM21`.
-O software abre **COM20**; o proxy abre **COM21** e a porta física **COM6**.
+Um driver externo aprovado deve criar um par como `COM13 ↔ COM14`.
+O software abre **COM13**; o proxy abre **COM14** e a porta física **COM6**.
 A instalação/configuração do driver pode exigir administrador; o uso normal do
 proxy não deve exigir elevação se as portas estiverem disponíveis e acessíveis.
 O projeto não instala drivers. Veja [configuração da COM virtual](docs/virtual-com-setup.md).
@@ -73,8 +109,8 @@ O projeto não instala drivers. Veja [configuração da COM virtual](docs/virtua
 
 ```powershell
 python -m tr_serial_proxy --list-ports
-tr-serial-proxy --physical-port COM6 --virtual-port COM21 --baud 9600 --bytesize 8 --parity N --stopbits 1
-python -m tr_serial_proxy --physical-port COM6 --virtual-port COM21 --baud 115200 --raw-log --quiet
+tr-serial-proxy --physical-port COM6 --virtual-port COM14 --baud 9600 --bytesize 8 --parity N --stopbits 1
+python -m tr_serial_proxy --physical-port COM6 --virtual-port COM14 --baud 115200 --raw-log --quiet
 ```
 
 Execute o proxy antes do tráfego do software. Ctrl+C encerra a sessão e mostra
@@ -139,7 +175,7 @@ Há também um [teste manual com dois pares virtuais](examples/README.md) usando
 
 ## Roadmap
 
-- V0.1: bridge bidirecional + log (implementado; validar no ambiente de destino).
+- V0.1: bridge bidirecional + log (implementado e validado nos dois arranjos documentados).
 - V0.2: filtros de visualização.
 - V0.3: estatísticas e análise de timing.
 - Futuro: replay opcional.

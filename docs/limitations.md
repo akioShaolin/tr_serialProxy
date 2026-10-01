@@ -1,7 +1,7 @@
 # Limitações
 
 - As duas portas usam os mesmos parâmetros, em objetos de configuração separados
-  para permitir evolução futura. Mudanças feitas pelo software em COM20 não são
+  para permitir evolução futura. Mudanças feitas pelo software na ponta virtual não são
   detectadas nem propagadas automaticamente à COM física.
 - Transparência é dos bytes lidos, não dos tempos do sinal elétrico. Drivers,
   buffers, disco e terminal acrescentam latência. `--quiet` reduz custo do terminal.
@@ -30,3 +30,9 @@
   nem dispositivos HID diretamente e não interpreta protocolos.
 - Parâmetros seriais permanecem fixos durante a execução nesta versão.
 - Não usar inicialmente para firmware/bootloader crítico sem validação prévia.
+
+- A validação nos arranjos físico e virtual não garante latência nula ou suporte
+  universal. USB-TTL, USB-RS485 e adaptadores CAN só estão no escopo quando expõem
+  uma interface COM compatível com pySerial; CAN sem COM não é suportado.
+- A fragmentação de leitura também ocorre com COM virtual. Os blocos retornados
+  por `read()` não são necessariamente frames; veja a [observação técnica](architecture.md#fragmentação-normal-de-leitura).
